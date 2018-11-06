@@ -10,7 +10,7 @@ npm i stdfjs
 **to Use**
 ```js
 const fs = require('fs')
-const stdf = require('stdf')
+const stdf = require('stdfjs')
 
 let rs = fs.createReadStream('./1.stdf')
 
