@@ -2,6 +2,12 @@ This is a package for parsing [stdf](https://en.wikipedia.org/wiki/Standard_Test
 
 ### Usage
 
+**to Install**
+```bash
+npm i stdfjs
+```
+
+**to Use**
 ```js
 const fs = require('fs')
 const stdf = require('stdf')
