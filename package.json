@@ -1,6 +1,6 @@
 {
   "name": "stdfjs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "This package is currently a prototype, the path from **stdf file** to **libstdf** (in C), then to **node module**, is working. But functions to make this package usable is still to be added.",
   "main": "index.js",
   "dependencies": {},
