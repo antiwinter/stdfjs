@@ -1,0 +1,21 @@
+{
+  "name": "stdfjs",
+  "version": "1.0.0",
+  "description": "This package is currently a prototype, the path from **stdf file** to **libstdf** (in C), then to **node module**, is working. But functions to make this package usable is still to be added.",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/antiwinter/stdfjs.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/antiwinter/stdfjs/issues"
+  },
+  "homepage": "https://github.com/antiwinter/stdfjs#readme"
+}
