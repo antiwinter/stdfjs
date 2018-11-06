@@ -3,18 +3,25 @@ This is a package for parsing [stdf](https://en.wikipedia.org/wiki/Standard_Test
 ### Usage
 
 **to Install**
+
 ```bash
 npm i stdfjs
 ```
 
 **to Use**
+
 ```js
 const fs = require('fs')
 const stdf = require('stdfjs')
 
 let rs = fs.createReadStream('./1.stdf')
 
-stdf.parser(rs).on('data', rec => {
-  console.log('%j', rec)
-})
+stdf
+  .parser(rs)
+  .on('rec', r => {
+    console.log('%j', r)
+  })
+  // .on('part', p => {
+  //   console.log(p)
+  // })
 ```

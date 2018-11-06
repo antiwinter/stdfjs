@@ -24,7 +24,7 @@ module.exports = {
       REC_TYP: 'PIR',
       data: {
         HEAD_NUM: '1U',
-        SIDE_NUM: '1U'
+        SITE_NUM: '1U'
       }
     },
     20: {

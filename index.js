@@ -9,6 +9,7 @@ const debug = (...args) => {
 module.exports = {
   parser(rs) {
     let p = {
+      cache: [{}, {}, {}, {}],
       buf: Buffer.alloc(0),
       ws: stream.Writable(),
       ee: new events.EventEmitter(),
@@ -20,8 +21,23 @@ module.exports = {
           p.buf = Buffer.concat([p.buf, buf])
           for (;;) {
             let r = p.getRecord()
-            if (r) p.ee.emit('data', r)
-            else break
+            if (r) {
+              p.ee.emit('rec', r)
+
+              // process PRR
+              switch (r.REC_TYP) {
+                case 'PIR':
+                  p.cache[r.HEAD_NUM][r.SITE_NUM] = { ':::Site': r.SITE_NUM }
+                  break
+                case 'PTR':
+                  p.cache[r.HEAD_NUM][r.SITE_NUM][r.TEST_TXT] = r.RESULT
+                  break
+                case 'PRR':
+                  p.cache[r.HEAD_NUM][r.SITE_NUM][':::Bin'] = r.HARD_BIN
+                  p.ee.emit('part', p.cache[r.HEAD_NUM][r.SITE_NUM])
+                  break
+              }
+            } else break
           }
         }
         done()
