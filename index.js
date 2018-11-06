@@ -7,12 +7,14 @@ const debug = (...args) => {
 }
 
 module.exports = {
-  parser(rs) {
+  parser(rs, opts) {
     let p = {
+      opts: opts,
       cache: [{}, {}, {}, {}],
       buf: Buffer.alloc(0),
       ws: stream.Writable(),
       ee: new events.EventEmitter(),
+
       update(buf, done) {
         if (!buf) {
           p.ee.emit('end')
@@ -30,7 +32,15 @@ module.exports = {
                   p.cache[r.HEAD_NUM][r.SITE_NUM] = { ':::Site': r.SITE_NUM }
                   break
                 case 'PTR':
-                  p.cache[r.HEAD_NUM][r.SITE_NUM][r.TEST_TXT] = r.RESULT
+                  let field = null
+                  if (p.opts && p.opts.partConversion) {
+                    field = p.opts.partConversion[r.TEST_TXT]
+                    if (!field) break
+                  } else {
+                    field = r.TEST_TXT
+                  }
+
+                  p.cache[r.HEAD_NUM][r.SITE_NUM][field] = r.RESULT
                   break
                 case 'PRR':
                   p.cache[r.HEAD_NUM][r.SITE_NUM][':::Bin'] = r.HARD_BIN
@@ -42,6 +52,7 @@ module.exports = {
         }
         done()
       },
+
       getRecord() {
         if (p.buf.length < 2) return
         let len = p.buf.readUInt16LE(0)
@@ -54,8 +65,6 @@ module.exports = {
         p.buf = p.buf.slice(len + 4)
 
         debug('len, type, sub', len, type, sub)
-        debug('next buffer', p.buf.length, p.buf)
-        debug('current data', d.length, d)
 
         if (!REC[type] || !REC[type][sub])
           return { REC_TYPE: 'unknown', BYTES: len }
@@ -104,7 +113,6 @@ module.exports = {
               break
             case '?C':
               len = d.readUInt8(pos++)
-              debug('got len', len)
               if (len) {
                 rec[k] = d.toString('utf-8', pos, pos + len)
                 pos += len

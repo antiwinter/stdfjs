@@ -1,12 +1,12 @@
 {
   "name": "stdfjs",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "description": "This package is currently a prototype, the path from **stdf file** to **libstdf** (in C), then to **node module**, is working. But functions to make this package usable is still to be added.",
   "main": "index.js",
   "dependencies": {},
   "devDependencies": {},
   "scripts": {
-    "test": "echo run test in test folder; exit 1"
+    "test": "node test/test.js"
   },
   "repository": {
     "type": "git",

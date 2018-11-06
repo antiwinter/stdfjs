@@ -1,11 +1,17 @@
-This is a package for parsing [stdf](https://en.wikipedia.org/wiki/Standard_Test_Data_Format) files. It is written in pure javascript. It is currently in its alpha state, which means it may have bugs, may be unstable. But at least you now have a package to process stdf file.
+Parses [stdf](https://en.wikipedia.org/wiki/Standard_Test_Data_Format) files into records or parts.
+
+It is written in pure javascript.
+
+It is currently in its alpha state, which means it may have bugs, may be unstable.
+
+But at least you now have a package to process stdf file.
 
 ### Usage
 
 **to Install**
 
 ```bash
-npm i stdfjs
+npm i stdfjs --save
 ```
 
 **to Use**
