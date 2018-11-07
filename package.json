@@ -1,6 +1,6 @@
 {
   "name": "stdfjs",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Parses stdf files into records or parts.",
   "main": "index.js",
   "dependencies": {},
@@ -13,10 +13,10 @@
     "url": "git+https://github.com/antiwinter/stdfjs.git"
   },
   "keywords": [
-    "array",
-    "callback",
-    "loop",
-    "async"
+    "STDF",
+    "ATE",
+    "test",
+    "Teradyne"
   ],
   "author": "antiwinter",
   "license": "ISC",
