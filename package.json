@@ -1,7 +1,7 @@
 {
   "name": "stdfjs",
-  "version": "1.0.5",
-  "description": "This package is currently a prototype, the path from **stdf file** to **libstdf** (in C), then to **node module**, is working. But functions to make this package usable is still to be added.",
+  "version": "1.0.6",
+  "description": "Parses stdf files into records or parts.",
   "main": "index.js",
   "dependencies": {},
   "devDependencies": {},
@@ -12,7 +12,13 @@
     "type": "git",
     "url": "git+https://github.com/antiwinter/stdfjs.git"
   },
-  "author": "",
+  "keywords": [
+    "array",
+    "callback",
+    "loop",
+    "async"
+  ],
+  "author": "antiwinter",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/antiwinter/stdfjs/issues"

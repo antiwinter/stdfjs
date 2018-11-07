@@ -10,7 +10,7 @@ module.exports = {
   parser(rs, opts) {
     let p = {
       opts: opts,
-      cache: [{}, {}, {}, {}],
+      cache: {},
       buf: Buffer.alloc(0),
       ws: stream.Writable(),
       ee: new events.EventEmitter(),
@@ -29,8 +29,10 @@ module.exports = {
               // process PRR
               switch (r.REC_TYP) {
                 case 'PIR':
+                  if (!p.cache[r.HEAD_NUM]) p.cache[r.HEAD_NUM] = {}
                   p.cache[r.HEAD_NUM][r.SITE_NUM] = { ':::Site': r.SITE_NUM }
                   break
+
                 case 'PTR':
                   let field = null
                   if (p.opts && p.opts.partConversion) {
@@ -42,6 +44,7 @@ module.exports = {
 
                   p.cache[r.HEAD_NUM][r.SITE_NUM][field] = r.RESULT
                   break
+
                 case 'PRR':
                   p.cache[r.HEAD_NUM][r.SITE_NUM][':::Bin'] = r.HARD_BIN
                   p.ee.emit('part', p.cache[r.HEAD_NUM][r.SITE_NUM])
