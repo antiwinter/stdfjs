@@ -1,5 +1,3 @@
-const stream = require('stream')
-const events = require('events')
 const REC = require('./rec')
 
 const debug = (...args) => {
@@ -7,24 +5,33 @@ const debug = (...args) => {
 }
 
 module.exports = {
-  parser(rs, opts) {
+  parser() {
     let p = {
-      opts: opts,
+      buf: new Uint8Array(),
       cache: {},
-      buf: Buffer.alloc(0),
-      ws: stream.Writable(),
-      ee: new events.EventEmitter(),
+      hook: { rec() {}, part() {}, end() {} },
+      on(type, func) {
+        p.hook[type] = func
+        return p
+      },
 
-      update(buf, done) {
+      concat(buf) {
+        let tmp = new Uint8Array(p.buf.length + buf.length)
+        tmp.set(p.buf)
+        tmp.set(new Uint8Array(buf), p.buf.length)
+        return tmp
+      },
+
+      push(buf) {
         if (!buf) {
-          p.ee.emit('end')
-          return
+          return p.hook.end()
         } else {
-          p.buf = Buffer.concat([p.buf, buf])
+          p.buf = p.concat(buf)
           for (;;) {
             let r = p.getRecord()
             if (r) {
-              p.ee.emit('rec', r)
+              // emit record
+              p.hook.rec(r)
 
               // process PRR
               switch (r.REC_TYP) {
@@ -34,36 +41,30 @@ module.exports = {
                   break
 
                 case 'PTR':
-                  let field = null
-                  if (p.opts && p.opts.partConversion) {
-                    field = p.opts.partConversion[r.TEST_TXT]
-                    if (!field) break
-                  } else {
-                    field = r.TEST_TXT
-                  }
-
+                  let field = r.TEST_TXT
                   p.cache[r.HEAD_NUM][r.SITE_NUM][field] = r.RESULT
                   break
 
                 case 'PRR':
                   p.cache[r.HEAD_NUM][r.SITE_NUM][':::Bin'] = r.HARD_BIN
-                  p.ee.emit('part', p.cache[r.HEAD_NUM][r.SITE_NUM])
-                  break
+
+                  // emit part
+                  p.hook.part(p.cache[r.HEAD_NUM][r.SITE_NUM])
               }
             } else break
           }
         }
-        done()
       },
 
       getRecord() {
         if (p.buf.length < 2) return
-        let len = p.buf.readUInt16LE(0)
+        let v = new DataView(p.buf.buffer)
+
+        let len = v.getUint16(0, true)
         if (p.buf.length < len + 4) return
 
-        let type = p.buf.readUInt8(2)
-        let sub = p.buf.readUInt8(3)
-        let d = p.buf.slice(4, len + 4)
+        let type = v.getUint8(2)
+        let sub = v.getUint8(3)
 
         p.buf = p.buf.slice(len + 4)
 
@@ -74,51 +75,64 @@ module.exports = {
 
         let t = REC[type][sub]
         let rec = { REC_TYP: t.REC_TYP }
-        let pos = 0
+        let pos = 4
         for (let k in t.data) {
           let fmt = t.data[k]
-          debug('reading', fmt, '@', pos)
-          if (pos >= d.length) break
+          debug(
+            'reading',
+            fmt,
+            '@',
+            pos,
+            len,
+            new Uint8Array(v.buffer.slice(pos, pos + 10))
+          )
+
+          if (pos >= len + 4) break
+          let _l
           switch (fmt) {
             case '1U':
             case '1B':
-              rec[k] = d.readUInt8(pos++)
+              rec[k] = v.getUint8(pos++)
               break
             case '1I':
-              rec[k] = d.readInt8(pos++)
+              rec[k] = v.getInt8(pos++)
               break
             case '1C':
-              rec[k] = String.fromCharCode(d.readUInt8(pos++))
+              rec[k] = String.fromCharCode(v.getUint8(pos++))
               break
             case '2U':
-              rec[k] = d.readUInt16LE(pos)
+              rec[k] = v.getUint16(pos, true)
               pos += 2
               break
             case '2I':
-              rec[k] = d.readInt16LE(pos)
+              rec[k] = v.getInt16(pos, true)
               pos += 2
               break
             case '4U':
-              rec[k] = d.readUInt32LE(pos)
+              rec[k] = v.getUint32(pos, true)
               pos += 4
               break
             case '4R':
-              rec[k] = d.readFloatLE(pos)
+              rec[k] = v.getFloat32(pos, true)
               pos += 4
               break
             case '?B':
-              len = d.readUInt8(pos++)
-              if (len) {
-                rec[k] = d.slice(pos, pos + len)
-                pos += len
+              _l = v.getUint8(pos++)
+              if (_l) {
+                rec[k] = d.slice(pos, pos + _l)
+                pos += _l
               } else rec[k] = 0
 
               break
             case '?C':
-              len = d.readUInt8(pos++)
-              if (len) {
-                rec[k] = d.toString('utf-8', pos, pos + len)
-                pos += len
+              _l = v.getUint8(pos++)
+              if (_l) {
+                rec[k] = String.fromCharCode.apply(
+                  null,
+                  new Uint8Array(v.buffer.slice(pos, pos + _l))
+                )
+
+                pos += _l
               } else rec[k] = ''
 
               break
@@ -126,21 +140,11 @@ module.exports = {
               console.log('cannot parse format', fmt)
               throw 'unknown format'
           }
-          debug('got', rec[k])
         }
         return rec
       }
     }
 
-    p.ws._write = (chunk, enc, next) => {
-      p.update(chunk, next)
-    }
-
-    p.ws.on('finish', () => {
-      p.update()
-    })
-
-    rs.pipe(p.ws)
-    return p.ee
+    return p
   }
 }
