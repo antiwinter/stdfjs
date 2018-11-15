@@ -1,6 +1,6 @@
 {
   "name": "stdfjs",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Parses stdf files into records or parts.",
   "main": "index.js",
   "dependencies": {},
