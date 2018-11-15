@@ -20,6 +20,7 @@ npm i stdfjs --save
 const stdf = require('stdfjs')
 const got = require('got')
 const bz2 = require('unbzip2-stream')
+const fs = require('fs')
 
 // get the demo stdf file from internet
 let stdfbz2 = got.stream(
@@ -30,13 +31,18 @@ let stdfbz2 = got.stream(
 let rs = stdfbz2.pipe(bz2())
 
 // feed the raw stdf stream to stdf parser
-stdf
-  .parser(rs)
+let parser = stdf
+  .parser()
   .on('rec', r => {
     console.log('%j', r)
   })
-  // .on('part', p => {
-  //   console.log(p)
-  // })
+  .on('part', p => {
+    console.log('%j', p)
+  })
 
+rs.on('data', ck => {
+  parser.push(ck)
+}).on('end', () => {
+  parser.push()
+})
 ```
