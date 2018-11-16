@@ -16,9 +16,11 @@ module.exports = {
       },
 
       concat(buf) {
-        let tmp = new Uint8Array(p.buf.length + buf.length)
+        let _b = new Uint8Array(buf)
+        let tmp = new Uint8Array(p.buf.length + _b.length)
         tmp.set(p.buf)
-        tmp.set(new Uint8Array(buf), p.buf.length)
+        tmp.set(_b, p.buf.length)
+
         return tmp
       },
 
