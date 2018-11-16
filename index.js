@@ -4,6 +4,20 @@ const debug = (...args) => {
   // console.log(...args)
 }
 
+let tt = {
+  poke(s) {
+    if (!tt[s]) tt[s] = { v: 0, c: 0 }
+    tt[s].a = new Date()
+  },
+  peek(s) {
+    if (!tt[s]) return
+    let n = new Date()
+    tt[s].v += n - tt[s].a
+    tt[s].c++
+    tt[s].a = n
+  }
+}
+
 module.exports = {
   parser() {
     let p = {
@@ -26,11 +40,21 @@ module.exports = {
 
       push(buf) {
         if (!buf) {
+          // console.error(tt)
+
           return p.hook.end()
         } else {
+          tt.poke('concat')
+
           p.buf = p.concat(buf)
+          tt.peek('concat')
+
           for (;;) {
+            tt.poke('getrec')
+
             let r = p.getRecord()
+            tt.peek('getrec')
+
             if (r) {
               // emit record
               p.hook.rec(r)
@@ -68,7 +92,10 @@ module.exports = {
         let type = v.getUint8(2)
         let sub = v.getUint8(3)
 
+        tt.poke('slice')
+
         p.buf = p.buf.slice(len + 4)
+        tt.peek('slice')
 
         debug('len, type, sub', len, type, sub)
 
@@ -78,6 +105,8 @@ module.exports = {
         let t = REC[type][sub]
         let rec = { REC_TYP: t.REC_TYP }
         let pos = 4
+        tt.poke('byteloop')
+
         for (let k in t.data) {
           let fmt = t.data[k]
           debug(
@@ -121,7 +150,7 @@ module.exports = {
             case '?B':
               _l = v.getUint8(pos++)
               if (_l) {
-                rec[k] = d.slice(pos, pos + _l)
+                // rec[k] = d.slice(pos, pos + _l)
                 pos += _l
               } else rec[k] = 0
 
@@ -129,10 +158,10 @@ module.exports = {
             case '?C':
               _l = v.getUint8(pos++)
               if (_l) {
-                rec[k] = String.fromCharCode.apply(
-                  null,
-                  new Uint8Array(v.buffer.slice(pos, pos + _l))
-                )
+                // rec[k] = String.fromCharCode.apply(
+                //   null,
+                //   new Uint8Array(v.buffer.slice(pos, pos + _l))
+                // )
 
                 pos += _l
               } else rec[k] = ''
@@ -143,6 +172,9 @@ module.exports = {
               throw 'unknown format'
           }
         }
+
+        tt.peek('byteloop')
+
         return rec
       }
     }

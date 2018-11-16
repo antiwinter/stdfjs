@@ -46,3 +46,9 @@ rs.on('data', ck => {
   parser.push()
 })
 ```
+
+### Note
+
+Because the new implementation uses [DataView]() instead of node [Buffer](), the performance is about 3 times slower than version `1.0.x` (commit ID `6083137cdf6a4f5f3c876e634e6c797ed44c810a`).
+
+But this change enables the availability of this package in browser.
