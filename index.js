@@ -150,7 +150,7 @@ module.exports = {
             case '?B':
               _l = v.getUint8(pos++)
               if (_l) {
-                // rec[k] = d.slice(pos, pos + _l)
+                rec[k] = d.slice(pos, pos + _l)
                 pos += _l
               } else rec[k] = 0
 
@@ -158,10 +158,10 @@ module.exports = {
             case '?C':
               _l = v.getUint8(pos++)
               if (_l) {
-                // rec[k] = String.fromCharCode.apply(
-                //   null,
-                //   new Uint8Array(v.buffer.slice(pos, pos + _l))
-                // )
+                rec[k] = String.fromCharCode.apply(
+                  null,
+                  new Uint8Array(v.buffer.slice(pos, pos + _l))
+                )
 
                 pos += _l
               } else rec[k] = ''
