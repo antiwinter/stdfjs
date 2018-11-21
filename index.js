@@ -63,7 +63,7 @@ module.exports = {
               switch (r.REC_TYP) {
                 case 'PIR':
                   if (!p.cache[r.HEAD_NUM]) p.cache[r.HEAD_NUM] = {}
-                  p.cache[r.HEAD_NUM][r.SITE_NUM] = { ':::Site': r.SITE_NUM }
+                  p.cache[r.HEAD_NUM][r.SITE_NUM] = { Site: r.SITE_NUM }
                   break
 
                 case 'PTR':
@@ -72,8 +72,16 @@ module.exports = {
                   break
 
                 case 'PRR':
-                  p.cache[r.HEAD_NUM][r.SITE_NUM][':::Bin'] = r.HARD_BIN
+                  p.cache[r.HEAD_NUM][r.SITE_NUM]['Bin'] = r.HARD_BIN
+                  p.cache[r.HEAD_NUM][r.SITE_NUM]['X_COORD'] = r.X_COORD
+                  p.cache[r.HEAD_NUM][r.SITE_NUM]['Y_COORD'] = r.Y_COORD
+                  p.cache[r.HEAD_NUM][r.SITE_NUM]['PART_ID'] = r.Y_COORD
 
+                  // console.log(
+                  //   r.HEAD_NUM,
+                  //   r.SITE_NUM,
+                  //   Object.keys(p.cache[r.HEAD_NUM][r.SITE_NUM]).length
+                  // )
                   // emit part
                   p.hook.part(p.cache[r.HEAD_NUM][r.SITE_NUM])
               }
